@@ -1,0 +1,354 @@
+Je pense que le changement de vocabulaire est déjà une grosse partie du problème.
+
+Aujourd'hui tu décris ton application comme un **"addon qui affiche une popup"**.
+
+Si tu veux qu'elle donne l'impression d'être une vraie fonctionnalité native macOS, il faut commencer à la penser comme un **Learning Companion** ou un **Workspace Panel**, pas comme une popup.
+
+En regardant ta capture, je verrais plutôt quelque chose qui ressemble à Raycast, Notion Calendar ou CleanShot X : un panneau élégant qui glisse depuis le bord droit, avec plusieurs vues.
+
+## Les termes que j'utiliserais
+
+Évite :
+
+* Popup
+* Dialog
+* Window
+* Alert
+
+Préfère :
+
+* **Sidebar**
+* **Learning Panel**
+* **Vocabulary Sidebar**
+* **Study Workspace**
+* **Learning Dashboard**
+* **Command Panel**
+* **Workspace**
+* **Floating Sidebar**
+* **Companion Window**
+* **Overlay Panel**
+* **Learning Companion**
+
+Par exemple :
+
+> "The app opens a native macOS floating learning sidebar."
+
+ou
+
+> "Build a native macOS vocabulary learning workspace."
+
+Ça change complètement la manière dont une IA va concevoir l'interface.
+
+---
+
+# Ce que j'imaginerais
+
+Au lieu de ça :
+
+```
++----------------+
+| mot            |
+| traduction     |
+| supprimer      |
++----------------+
+```
+
+je verrais plutôt quelque chose comme :
+
+```
+──────────────────────────────────────────
+📚 Vocabulary
+──────────────────────────────────────────
+
+Today's progress
+████████░░ 12 / 20
+
+──────────────────────────────────────────
+
+□ Translate
+   → Traduire
+
+──────────────────────────────────────────
+
+□ Rate
+   → ??????
+
+👁 Reveal
+
+Difficulty
+○ Easy
+● Medium
+○ Hard
+
+──────────────────────────────────────────
+
+Last review
+Yesterday
+
+Next review
+Tomorrow
+
+──────────────────────────────────────────
+
+✓ I know it
+↺ Review later
+✗ Ignore
+```
+
+Ça ressemble davantage à une mini application.
+
+---
+
+# Tu peux aller encore plus loin
+
+Créer plusieurs modes.
+
+## Inbox
+
+Quand un mot est capturé.
+
+```
+New word found
+
+Translate
+
+Reveal translation
+
+Save
+
+Ignore
+```
+
+---
+
+## Learn
+
+Mode d'apprentissage.
+
+```
+Rate
+
+•••••••••••
+
+???
+
+Reveal
+
+Good
+Hard
+Again
+```
+
+---
+
+## Review
+
+Flashcards.
+
+```
+French
+
+↓
+
+??
+
+↓
+
+Reveal
+
+Easy
+Medium
+Hard
+```
+
+---
+
+## Statistics
+
+```
+Words learned
+
+421
+
+Retention
+
+91%
+
+Today's streak
+
+17 days
+
+Weak words
+
+23
+```
+
+---
+
+# Des interactions très macOS
+
+Au lieu de boutons partout.
+
+Swipe gauche :
+
+```
+Delete
+```
+
+Swipe droite :
+
+```
+Known
+```
+
+Space :
+
+```
+Reveal
+```
+
+Enter :
+
+```
+Known
+```
+
+⌘R :
+
+```
+Review later
+```
+
+⌘H :
+
+```
+Hide translation
+```
+
+⌘L :
+
+```
+Learn mode
+```
+
+Comme Raycast.
+
+---
+
+# Tu peux transformer ton outil en véritable SRS
+
+Aujourd'hui tu stockes juste des mots.
+
+Demain tu peux gérer des cartes de mémoire.
+
+Chaque mot aurait un état :
+
+```
+New
+
+↓
+
+Learning
+
+↓
+
+Known
+
+↓
+
+Mastered
+```
+
+Avec une répétition espacée :
+
+```
+Aujourd'hui
+
+↓
+
+1 jour
+
+↓
+
+3 jours
+
+↓
+
+7 jours
+
+↓
+
+14 jours
+
+↓
+
+1 mois
+
+↓
+
+3 mois
+```
+
+L'utilisateur n'a rien à gérer.
+
+Il clique simplement :
+
+```
+Easy
+
+Good
+
+Hard
+
+Again
+```
+
+Le planning se fait automatiquement.
+
+---
+
+# J'ajouterais une "Focus Session"
+
+Le panneau devient :
+
+```
+Today's Review
+
+18 cards
+
+──────────────
+
+Translate
+
+↓
+
+???
+
+──────────────
+
+Show Answer
+
+──────────────
+
+Again
+
+Hard
+
+Good
+
+Easy
+```
+
+Exactement comme Anki, mais intégré dans macOS.
+
+---
+
+# Si tu veux quelque chose qui fasse vraiment "application Apple"
+
+Je partirais sur cette philosophie :
+
+> **Un compagnon d'apprentissage toujours disponible, qui apparaît discrètement lorsque tu captures un mot, puis te propose des sessions de révision élégantes basées sur la répétition espacée, sans jamais casser ton flux de travail.**
+
+Le mot important n'est plus **popup**, mais **Learning Companion** ou **Vocabulary Sidebar**.
+
+Je pense même que tu peux viser un niveau de finition proche d'une application Apple en t'inspirant de **Raycast**, **Things 3**, **CleanShot X**, **Notion Calendar** et **Fantastical** : une interface minimaliste, des animations fluides, une navigation au clavier, et un panneau latéral qui donne l'impression d'être une extension naturelle de macOS plutôt qu'une simple fenêtre flottante. Étant donné tes projets de développement d'outils IA et d'apprentissage, ce positionnement rendrait ton application beaucoup plus agréable à utiliser au quotidien.

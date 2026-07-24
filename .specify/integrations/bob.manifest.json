@@ -12,6 +12,11 @@
     ".bob/commands/speckit.checklist.md": "2124a817bddbff7f469fd47b08e43dd9a39b769499d367f6888a74e1e821412d",
     ".bob/commands/speckit.specify.md": "03cdf4573683e2566292f89def665972d546c72478dca7bd3e02ad6800fce1f6",
     ".bob/commands/speckit.tasks.md": "729088052aea79513d3f30c4b2c319d6dfab34fc15dc8f043870517619d24d6f",
-    ".bob/commands/speckit.taskstoissues.md": "0a436a42ceca2db309df88985d1939ee7f176c4a7a2d7c7a8d2253006cfe6870"
+    ".bob/commands/speckit.taskstoissues.md": "0a436a42ceca2db309df88985d1939ee7f176c4a7a2d7c7a8d2253006cfe6870",
+    ".bob/commands/speckit-git-commit.md": "9c12c5d74103554d715d51bd17a774ad61064f73db77b7454ebc1af978980eb2",
+    ".bob/commands/speckit-git-feature.md": "cbe46296aa5115c7d047d0b73cc7c49d223de60569f49e1accbd5e8db0c48cd6",
+    ".bob/commands/speckit-git-initialize.md": "449a16872c1a72c6c11644749a34bf1473fa60b49d7261f638f9258fb67bab96",
+    ".bob/commands/speckit-git-remote.md": "b5e9dfddf2910544a508575f2e7cfe4df97098c219e4790511d855698afba670",
+    ".bob/commands/speckit-git-validate.md": "c51bbe35b3b7a3fda246f05ba721318c49ee396ef409018bd527ec439ebbcd3a"
   }
 }

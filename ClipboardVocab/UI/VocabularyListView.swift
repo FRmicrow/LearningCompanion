@@ -20,6 +20,8 @@ struct VocabularyListView: View {
 
     @State private var entries: [VocabularyEntry] = []
     @State private var observationTask: Task<Void, Never>? = nil
+    /// Controls whether the translation for the focused Inbox item is revealed.
+    @State private var isTranslationVisible: Bool = false
 
     // MARK: - Derived data
 
@@ -61,6 +63,11 @@ struct VocabularyListView: View {
             .onAppear { startObservation() }
             .onDisappear { observationTask?.cancel() }
             .retryPendingOnAppear(for: translationService)
+            .modifier(InboxKeyboardShortcutsModifier(
+                onRevealTranslation: { isTranslationVisible = true },
+                onToggleTranslation: { isTranslationVisible.toggle() },
+                onMarkKnown: { markKnown() }
+            ))
     }
 
     @ViewBuilder
@@ -113,6 +120,14 @@ struct VocabularyListView: View {
         }
     }
 
+    /// F-104: Mark the first unretained entry as known (retained).
+    private func markKnown() {
+        guard let entry = entries.first(where: { !$0.isRetained }),
+              let id = entry.id else { return }
+        toggleRetained(id: id, retained: true)
+        isTranslationVisible = false
+    }
+
     private func delete(_ entry: VocabularyEntry) {
         guard let id = entry.id else { return }
         try? repository.delete(id: id)
@@ -135,6 +150,54 @@ struct VocabularyListView: View {
             } catch {
                 // DB closed or app shutting down — ignore
             }
+        }
+    }
+}
+
+// MARK: - InboxKeyboardShortcutsModifier
+
+/// Handles F-104 keyboard shortcuts for the Inbox tab.
+///
+/// - Space: reveal translation
+/// - ⌘H: toggle translation visibility
+/// - Return: mark current item as known
+///
+/// `.onKeyPress` for Space requires macOS 14+; ⌘H / Return hidden buttons work on macOS 13+.
+private struct InboxKeyboardShortcutsModifier: ViewModifier {
+    let onRevealTranslation: () -> Void
+    let onToggleTranslation: () -> Void
+    let onMarkKnown: () -> Void
+
+    func body(content: Content) -> some View {
+        content
+            // ⌘H and Return via hidden buttons (work on macOS 13+)
+            .background {
+                Group {
+                    Button("") { onToggleTranslation() }
+                        .keyboardShortcut("h", modifiers: .command)
+                    Button("") { onMarkKnown() }
+                        .keyboardShortcut(.return, modifiers: [])
+                }
+                .hidden()
+            }
+            // Space via onKeyPress (macOS 14+ only)
+            .modifier(SpaceKeyRevealModifier(onReveal: onRevealTranslation))
+    }
+}
+
+/// Conditionally applies `.onKeyPress(.space)` on macOS 14+.
+private struct SpaceKeyRevealModifier: ViewModifier {
+    let onReveal: () -> Void
+
+    func body(content: Content) -> some View {
+        if #available(macOS 14, *) {
+            content
+                .onKeyPress(.space) {
+                    onReveal()
+                    return .handled
+                }
+        } else {
+            content
         }
     }
 }

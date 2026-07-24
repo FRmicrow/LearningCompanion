@@ -1,46 +1,167 @@
-# Spec Kit extensions configuration
-# Defines lifecycle hooks that run before/after core speckit commands.
-#
-# Hook fields:
-#   extension   - display name shown in the agent's output
-#   command     - the Bob command to invoke (without leading slash)
-#   description - short human-readable description
-#   prompt      - the prompt forwarded to the command when invoked
-#   optional    - true: agent surfaces the hook but does not auto-run it
-#                 false: agent auto-runs the hook and waits for the result
-#   enabled     - set to false to disable without deleting the entry
-#   condition   - (reserved) expression evaluated by HookExecutor; leave
-#                 empty to run unconditionally
-
 hooks:
-  # ── before_specify ────────────────────────────────────────────────────────
-  # Hooks executed before /speckit.specify creates the spec directory.
-  before_specify: []
-
-  # ── after_specify ─────────────────────────────────────────────────────────
-  # Hooks executed after /speckit.specify writes and validates spec.md.
-  after_specify: []
-
-  # ── before_plan ───────────────────────────────────────────────────────────
-  # Hooks executed before /speckit.plan generates plan.md.
-  before_plan: []
-
-  # ── after_plan ────────────────────────────────────────────────────────────
-  # Hooks executed after /speckit.plan writes plan.md.
-  after_plan: []
-
-  # ── before_tasks ──────────────────────────────────────────────────────────
-  # Hooks executed before /speckit.tasks generates tasks.md.
-  before_tasks: []
-
-  # ── after_tasks ───────────────────────────────────────────────────────────
-  # Hooks executed after /speckit.tasks writes tasks.md.
-  after_tasks: []
-
-  # ── before_implement ──────────────────────────────────────────────────────
-  # Hooks executed before /speckit.implement starts the implementation phase.
-  before_implement: []
-
-  # ── after_implement ───────────────────────────────────────────────────────
-  # Hooks executed after /speckit.implement completes.
-  after_implement: []
+  before_specify:
+  - extension: git
+    command: speckit.git.feature
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.git.feature?
+    description: Create feature branch before specification
+    condition: null
+  after_specify:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit specification changes?
+    description: Auto-commit after specification
+    condition: null
+  before_plan:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit outstanding changes before planning?
+    description: Auto-commit before implementation planning
+    condition: null
+  after_plan:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit plan changes?
+    description: Auto-commit after implementation planning
+    condition: null
+  before_tasks:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit outstanding changes before task generation?
+    description: Auto-commit before task generation
+    condition: null
+  after_tasks:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit task changes?
+    description: Auto-commit after task generation
+    condition: null
+  before_implement:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit outstanding changes before implementation?
+    description: Auto-commit before implementation
+    condition: null
+  after_implement:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit implementation changes?
+    description: Auto-commit after implementation
+    condition: null
+  before_constitution:
+  - extension: git
+    command: speckit.git.initialize
+    enabled: true
+    optional: false
+    priority: 10
+    prompt: Execute speckit.git.initialize?
+    description: Initialize Git repository before constitution setup
+    condition: null
+  before_clarify:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit outstanding changes before clarification?
+    description: Auto-commit before spec clarification
+    condition: null
+  before_checklist:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit outstanding changes before checklist?
+    description: Auto-commit before checklist generation
+    condition: null
+  before_analyze:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit outstanding changes before analysis?
+    description: Auto-commit before analysis
+    condition: null
+  before_taskstoissues:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit outstanding changes before issue sync?
+    description: Auto-commit before tasks-to-issues conversion
+    condition: null
+  after_constitution:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit constitution changes?
+    description: Auto-commit after constitution update
+    condition: null
+  after_clarify:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit clarification changes?
+    description: Auto-commit after spec clarification
+    condition: null
+  after_checklist:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit checklist changes?
+    description: Auto-commit after checklist generation
+    condition: null
+  after_analyze:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit analysis results?
+    description: Auto-commit after analysis
+    condition: null
+  after_taskstoissues:
+  - extension: git
+    command: speckit.git.commit
+    enabled: true
+    optional: true
+    priority: 10
+    prompt: Commit after syncing issues?
+    description: Auto-commit after tasks-to-issues conversion
+    condition: null
+installed:
+- git
+settings:
+  auto_execute_hooks: true

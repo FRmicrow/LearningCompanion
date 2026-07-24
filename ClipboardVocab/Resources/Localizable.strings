@@ -29,3 +29,18 @@
 
 /* Quit */
 "quit_label" = "Quitter ClipboardVocab";
+
+/* Daily progress bar */
+"words_label" = "mots";
+"today_progress_label" = "Aujourd'hui";
+
+/* Sidebar tab labels */
+"tab_inbox_label" = "Boîte de réception";
+"tab_learn_label" = "Apprendre";
+"tab_review_label" = "Réviser";
+"tab_stats_label" = "Statistiques";
+
+/* Sidebar placeholder content */
+"learn_placeholder_label" = "Apprendre — bientôt disponible";
+"review_placeholder_label" = "Réviser — bientôt disponible";
+"stats_placeholder_label" = "Statistiques — bientôt disponible";

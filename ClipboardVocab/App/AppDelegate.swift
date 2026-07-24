@@ -61,13 +61,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, ClipboardMonitorDelega
         }
 
         // 5. Apple Translation session host — keeps the session alive independently
-        //    of the popover lifecycle so that words captured before the panel is
+        //    of the sidebar lifecycle so that words captured before the panel is
         //    opened are translated immediately (FR-001, FR-002).
         TranslationSessionHost.install(translationService: translationService)
 
-        // 6. Global keyboard shortcut: Command+Shift+C
+        // 6. Global keyboard shortcut: Command+Shift+C — toggles the sidebar (C-18)
         GlobalShortcutManager.shared.register { [weak self] in
-            self?.toggleCaptureState()
+            self?.statusItemController.toggleSidebar()
         }
 
         // 6. Connectivity observer for pending translation retry

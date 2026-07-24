@@ -1,0 +1,382 @@
+
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Language Tool — Backlog</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    background: #ffffff;
+    color: #1f2328;
+    padding: 32px 16px 48px;
+  }
+  .page { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  .subtitle { color: #57606a; font-size: 13px; margin-bottom: 32px; }
+
+  .epic-block { margin-bottom: 36px; }
+  .epic-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+  }
+  .epic-num {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    opacity: .6;
+    white-space: nowrap;
+  }
+  .epic-title { font-size: 15px; font-weight: 700; }
+  .epic-desc { font-size: 13px; color: #57606a; margin-top: 2px; }
+
+  /* Epic colours (bg only) */
+  .e1 { background: #eff6ff; }
+  .e2 { background: #f0fdf4; }
+  .e3 { background: #fdf4ff; }
+  .e4 { background: #fff7ed; }
+  .e5 { background: #f0f9ff; }
+  .e6 { background: #fefce8; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  thead th {
+    text-align: left;
+    font-weight: 600;
+    color: #57606a;
+    padding: 6px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid #f0f1f3; }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 8px 10px; vertical-align: top; }
+  td:first-child { white-space: nowrap; font-weight: 600; color: #3b82d4; font-size: 12px; }
+  td:nth-child(2) { font-weight: 500; }
+  td:nth-child(3) { color: #57606a; }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 7px;
+    border-radius: 12px;
+    white-space: nowrap;
+  }
+  .s-s { background: #dcfce7; color: #166534; }
+  .s-m { background: #fef9c3; color: #854d0e; }
+  .s-l { background: #fee2e2; color: #991b1b; }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #57606a; }
+
+  .divider { border: none; border-top: 1px solid #e5e7eb; margin: 32px 0; }
+
+  footer {
+    text-align: center;
+    font-size: 12px;
+    color: #57606a;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 16px;
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <h1>Language Tool — Backlog</h1>
+  <p class="subtitle">Découpage en features pour transformer l'app en <strong>Learning Companion</strong> macOS natif · 6 épics · 28 user stories</p>
+
+  <div class="legend">
+    <div class="legend-item"><span class="badge s-s">S</span> Small — ≤ 1 jour</div>
+    <div class="legend-item"><span class="badge s-m">M</span> Medium — 2–3 jours</div>
+    <div class="legend-item"><span class="badge s-l">L</span> Large — 4–7 jours</div>
+  </div>
+
+  
+  <div class="epic-block">
+    <div class="epic-header e1">
+      <span class="epic-num">Epic 1</span>
+      <div>
+        <div class="epic-title">Vocabulary Sidebar (panel natif)</div>
+        <div class="epic-desc">Remplacer la popup par un floating panel élégant inspiré de Raycast / CleanShot X.</div>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>ID</th><th>Feature</th><th>Description</th><th>Taille</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>F-101</td>
+          <td>Floating Sidebar Window</td>
+          <td>Remplacer la NSWindow popup par un panneau latéral flottant (bord droit de l'écran, hauteur 100 %, sans titlebar).</td>
+          <td><span class="badge s-m">M</span></td>
+        </tr>
+        <tr>
+          <td>F-102</td>
+          <td>Navigation multi-vues</td>
+          <td>Barre d'onglets en bas du panneau : Inbox / Learn / Review / Stats. Navigation au clavier (⌘L, ⌘R, etc.).</td>
+          <td><span class="badge s-m">M</span></td>
+        </tr>
+        <tr>
+          <td>F-103</td>
+          <td>Barre de progression du jour</td>
+          <td>Afficher "Today's Progress" (X / 20 mots) avec une barre de progression native en haut du panneau.</td>
+          <td><span class="badge s-s">S</span></td>
+        </tr>
+        <tr>
+          <td>F-104</td>
+          <td>Raccourcis clavier globaux</td>
+          <td>Implémenter Space (Reveal), Enter (Known), ⌘R (Review later), ⌘H (Hide translation), ⌘L (Learn mode).</td>
+          <td><span class="badge s-m">M</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  
+  <div class="epic-block">
+    <div class="epic-header e2">
+      <span class="epic-num">Epic 2</span>
+      <div>
+        <div class="epic-title">Inbox — Capture &amp; Triage</div>
+        <div class="epic-desc">Première vue déclenchée quand un nouveau mot est capturé depuis le presse-papiers.</div>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>ID</th><th>Feature</th><th>Description</th><th>Taille</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>F-201</td>
+          <td>Vue Inbox</td>
+          <td>Afficher le mot capturé, sa traduction (hidden par défaut), et les actions Save / Ignore / Reveal.</td>
+          <td><span class="badge s-s">S</span></td>
+        </tr>
+        <tr>
+          <td>F-202</td>
+          <td>Reveal translation</td>
+          <td>Masquer la traduction au chargement ; la révéler au tap ou à la touche Space.</td>
+          <td><span class="badge s-s">S</span></td>
+        </tr>
+        <tr>
+          <td>F-203</td>
+          <td>Swipe gestures sur la liste</td>
+          <td>Swipe gauche → Delete, swipe droite → Known (comme Mail.app).</td>
+          <td><span class="badge s-m">M</span></td>
+        </tr>
+        <tr>
+          <td>F-204</td>
+          <td>Notification discrète</td>
+          <td>Afficher un badge sur l'icône menu-bar quand des mots sont en attente dans l'Inbox.</td>
+          <td><span class="badge s-s">S</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  
+  <div class="epic-block">
+    <div class="epic-header e3">
+      <span class="epic-num">Epic 3</span>
+      <div>
+        <div class="epic-title">SRS Engine — Répétition Espacée</div>
+        <div class="epic-desc">Moteur de répétition espacée (Anki-like) avec états New → Learning → Known → Mastered.</div>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>ID</th><th>Feature</th><th>Description</th><th>Taille</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>F-301</td>
+          <td>Modèle de données SRS</td>
+          <td>Ajouter les champs <code>srsState</code>, <code>dueDate</code>, <code>interval</code>, <code>easeFactor</code> à <code>VocabularyEntry</code> via migration GRDB.</td>
+          <td><span class="badge s-m">M</span></td>
+        </tr>
+        <tr>
+          <td>F-302</td>
+          <td>Algorithme SRS</td>
+          <td>Implémenter l'algorithme SM-2 : intervalles 1j → 3j → 7j → 14j → 1m → 3m selon le rating (Easy / Good / Hard / Again).</td>
+          <td><span class="badge s-l">L</span></td>
+        </tr>
+        <tr>
+          <td>F-303</td>
+          <td>File de révision quotidienne</td>
+          <td>Query GRDB pour récupérer les entrées dont <code>dueDate ≤ today</code>, triées par priorité.</td>
+          <td><span class="badge s-s">S</span></td>
+        </tr>
+        <tr>
+          <td>F-304</td>
+          <td>Rating persisted</td>
+          <td>Persister le rating (Easy/Good/Hard/Again) et recalculer <code>dueDate</code> + <code>easeFactor</code> en temps réel.</td>
+          <td><span class="badge s-s">S</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  
+  <div class="epic-block">
+    <div class="epic-header e4">
+      <span class="epic-num">Epic 4</span>
+      <div>
+        <div class="epic-title">Learn &amp; Review — Sessions de révision</div>
+        <div class="epic-desc">Deux modes de révision : Learn (apprentissage guidé) et Review (flashcards).</div>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>ID</th><th>Feature</th><th>Description</th><th>Taille</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>F-401</td>
+          <td>Vue Learn</td>
+          <td>Afficher le mot, masquer la traduction, bouton Reveal, puis boutons Again / Hard / Good / Easy reliés au SRS Engine.</td>
+          <td><span class="badge s-m">M</span></td>
+        </tr>
+        <tr>
+          <td>F-402</td>
+          <td>Vue Review (flashcards)</td>
+          <td>Afficher la traduction française, révéler l'anglais, noter Easy / Medium / Hard.</td>
+          <td><span class="badge s-m">M</span></td>
+        </tr>
+        <tr>
+          <td>F-403</td>
+          <td>Focus Session</td>
+          <td>Mode "Today's Review" : enchaîner automatiquement toutes les cartes dues, avec compteur de progression (X / 18 cards).</td>
+          <td><span class="badge s-m">M</span></td>
+        </tr>
+        <tr>
+          <td>F-404</td>
+          <td>Indicateur de difficulté</td>
+          <td>Afficher Easy / Medium / Hard comme sélecteur radio sur chaque carte pour contextualiser le mot.</td>
+          <td><span class="badge s-s">S</span></td>
+        </tr>
+        <tr>
+          <td>F-405</td>
+          <td>Métadonnées de révision</td>
+          <td>Afficher "Last review: Yesterday" et "Next review: Tomorrow" en bas de chaque carte.</td>
+          <td><span class="badge s-s">S</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  
+  <div class="epic-block">
+    <div class="epic-header e5">
+      <span class="epic-num">Epic 5</span>
+      <div>
+        <div class="epic-title">Statistics Dashboard</div>
+        <div class="epic-desc">Vue Stats pour visualiser les progrès : mots appris, rétention, streak, mots faibles.</div>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>ID</th><th>Feature</th><th>Description</th><th>Taille</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>F-501</td>
+          <td>Compteurs principaux</td>
+          <td>Afficher Words Learned (total), Retention (%), Today's Streak (jours), Weak Words (count).</td>
+          <td><span class="badge s-s">S</span></td>
+        </tr>
+        <tr>
+          <td>F-502</td>
+          <td>Calcul du taux de rétention</td>
+          <td>Calculer le pourcentage de cartes notées Easy/Good parmi toutes les révisions des 30 derniers jours.</td>
+          <td><span class="badge s-m">M</span></td>
+        </tr>
+        <tr>
+          <td>F-503</td>
+          <td>Streak quotidien</td>
+          <td>Incrémenter le streak si au moins une révision est faite dans la journée. Persister la valeur en UserDefaults.</td>
+          <td><span class="badge s-s">S</span></td>
+        </tr>
+        <tr>
+          <td>F-504</td>
+          <td>Liste des mots faibles</td>
+          <td>Identifier les mots notés "Hard" ou "Again" ≥ 3 fois récemment et les mettre en évidence dans la vue Stats.</td>
+          <td><span class="badge s-m">M</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  
+  <div class="epic-block">
+    <div class="epic-header e6">
+      <span class="epic-num">Epic 6</span>
+      <div>
+        <div class="epic-title">Polish &amp; macOS Native Feel</div>
+        <div class="epic-desc">Finitions pour atteindre un niveau de qualité Raycast / Things 3.</div>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>ID</th><th>Feature</th><th>Description</th><th>Taille</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>F-601</td>
+          <td>Animations de transition</td>
+          <td>Animer l'apparition/disparition du panneau (slide depuis le bord droit) et les transitions entre vues.</td>
+          <td><span class="badge s-m">M</span></td>
+        </tr>
+        <tr>
+          <td>F-602</td>
+          <td>Support Dark / Light mode</td>
+          <td>S'assurer que toutes les couleurs utilisent les tokens système (<code>.primary</code>, <code>.secondary</code>, <code>.background</code>).</td>
+          <td><span class="badge s-s">S</span></td>
+        </tr>
+        <tr>
+          <td>F-603</td>
+          <td>Accessibilité clavier complète</td>
+          <td>Toutes les actions accessibles au clavier sans souris. Tab order logique. VoiceOver labels.</td>
+          <td><span class="badge s-m">M</span></td>
+        </tr>
+        <tr>
+          <td>F-604</td>
+          <td>Empty states</td>
+          <td>Afficher des vues vides élégantes quand l'Inbox est vide, quand il n'y a pas de révisions dues, etc.</td>
+          <td><span class="badge s-s">S</span></td>
+        </tr>
+        <tr>
+          <td>F-605</td>
+          <td>Onboarding minimal</td>
+          <td>Première ouverture : 2–3 écrans qui expliquent le flux Capture → Learn → Review.</td>
+          <td><span class="badge s-m">M</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider" />
+
+  
+  <h2 style="font-size:15px;font-weight:700;margin-bottom:12px">Ordre de livraison recommandé</h2>
+  <table>
+    <thead><tr><th>Sprint</th><th>Épics incluses</th><th>Objectif</th></tr></thead>
+    <tbody>
+      <tr><td>Sprint 1</td><td>Epic 1 + Epic 2</td><td>Avoir un panneau natif avec l'Inbox fonctionnelle</td></tr>
+      <tr><td>Sprint 2</td><td>Epic 3</td><td>Moteur SRS en place (données + algorithme)</td></tr>
+      <tr><td>Sprint 3</td><td>Epic 4</td><td>Sessions Learn &amp; Review branchées sur le SRS</td></tr>
+      <tr><td>Sprint 4</td><td>Epic 5 + Epic 6 (F-602, F-604)</td><td>Stats + finitions essentielles</td></tr>
+      <tr><td>Sprint 5</td><td>Epic 6 (F-601, F-603, F-605)</td><td>Polish animations, accessibilité, onboarding</td></tr>
+    </tbody>
+  </table>
+
+  <footer>Made with IBM Bob</footer>
+</div>
+</body>
+</html>

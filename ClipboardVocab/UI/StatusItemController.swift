@@ -1,10 +1,10 @@
 import AppKit
 import SwiftUI
 
-/// Owns the `NSStatusItem` and the `NSPopover` that hosts `VocabularyListView`.
+/// Owns the `NSStatusItem` and the floating `VocabularySidebarPanel`.
 ///
-/// Also surfaces a right-click menu with pause/resume and quit actions.
-final class StatusItemController: NSObject, NSPopoverDelegate {
+/// Surfaces a right-click menu with pause/resume and quit actions.
+final class StatusItemController: NSObject {
 
     // MARK: - Dependencies
 
@@ -18,8 +18,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
     // MARK: - AppKit objects
 
     private var statusItem: NSStatusItem!
-    private var popover: NSPopover!
-    private var eventMonitor: Any?
+    private var panel: VocabularySidebarPanel!
 
     // MARK: - Init
 
@@ -28,7 +27,10 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         self.translationService = translationService
         super.init()
         buildStatusItem()
-        buildPopover()
+        panel = VocabularySidebarPanel(
+            repository: repository,
+            translationService: translationService
+        )
     }
 
     // MARK: - Icon state
@@ -49,6 +51,14 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         buildMenu(captureState: captureState)
     }
 
+    // MARK: - Sidebar toggle (single entry-point per C-16)
+
+    /// Show the sidebar if hidden, hide it if shown.
+    /// Called by both the left-click handler and `AppDelegate` via `GlobalShortcutManager`.
+    func toggleSidebar() {
+        panel.toggle()
+    }
+
     // MARK: - Private setup
 
     private func buildStatusItem() {
@@ -57,20 +67,6 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
         statusItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
         statusItem.button?.target = self
         updateIcon(for: .active)
-    }
-
-    private func buildPopover() {
-        popover = NSPopover()
-        popover.contentViewController = NSHostingController(
-            rootView: VocabularyListView(
-                repository: repository,
-                translationService: translationService
-            )
-        )
-        // .applicationDefined lets internal interactions (scroll, buttons) work
-        // freely; the eventMonitor already handles closing on outside clicks.
-        popover.behavior = .applicationDefined
-        popover.delegate = self
     }
 
     private func buildMenu(captureState: CaptureState) {
@@ -108,7 +104,7 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
             statusItem.button?.performClick(nil)
         } else {
             statusItem.menu = nil
-            togglePopover(sender)
+            toggleSidebar()
         }
     }
 
@@ -118,39 +114,5 @@ final class StatusItemController: NSObject, NSPopoverDelegate {
 
     @objc private func quit() {
         onQuit?()
-    }
-
-    private func togglePopover(_ sender: NSStatusBarButton) {
-        if popover.isShown {
-            closePopover()
-        } else {
-            openPopover(relativeTo: sender)
-        }
-    }
-
-    private func openPopover(relativeTo button: NSStatusBarButton) {
-        popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-        // Retry handled by RetryOnAppearModifier inside VocabularyListView (FR-005).
-        // Install outside-click monitor
-        eventMonitor = NSEvent.addGlobalMonitorForEvents(matching: [.leftMouseDown, .rightMouseDown]) { [weak self] _ in
-            self?.closePopover()
-        }
-    }
-
-    private func closePopover() {
-        popover.performClose(nil)
-        if let monitor = eventMonitor {
-            NSEvent.removeMonitor(monitor)
-            eventMonitor = nil
-        }
-    }
-
-    // MARK: - NSPopoverDelegate
-
-    func popoverDidClose(_ notification: Notification) {
-        if let monitor = eventMonitor {
-            NSEvent.removeMonitor(monitor)
-            eventMonitor = nil
-        }
     }
 }
