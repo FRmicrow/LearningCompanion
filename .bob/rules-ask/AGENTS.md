@@ -1,0 +1,9 @@
+# Ask Mode Context (Non-Obvious Only)
+
+- There is **no Xcode `.xcodeproj`** — this is a pure SPM executable. Build/test commands are `swift build` / `swift test`.
+- `specs/` contains 4 numbered spec directories (001–004), each with `contracts/` sub-files that define public API and threading contracts. There are now contracts in 001 (`capture-processor.md`, `clipboard-monitor.md`, `vocabulary-list-ui.md`), 002 (`vocabulary-panel-ui.md`), 003 (`translation-service.md`), and 004 (`translation-service-v2.md`). When in doubt about a contract, read the relevant spec directory — not just 003.
+- The `KeyboardShortcuts` SPM package was **intentionally removed** and replaced with a manual Carbon implementation in `GlobalShortcutManager.swift` to fix `#Preview` macro failures in non-Xcode builds.
+- Apple's `Translation` framework (macOS 15+) **requires a view context** for `TranslationSession` — there is no background-only API yet. The `@available(macOS 15, *)` branch in `TranslationService` falls through to LibreTranslate for this reason.
+- Tests use **Swift Testing** (`@Suite`, `@Test`, `#expect`), not XCTest. The two frameworks are incompatible — do not mix them. `Issue.record(...)` is the Swift Testing equivalent of `XCTFail`.
+- The app is a **menu-bar agent** (`LSUIElement = YES` in `Info.plist`) — it has no window, no Dock icon, and no standard menu bar. The only user-visible surface is an `NSStatusItem` + `NSPopover`. There is also an invisible off-screen `NSWindow` (`TranslationSessionHost`) that must remain alive to keep the Apple Translation session active.
+- `NWPathMonitor` fires on **every** path update (including interface changes that remain `.satisfied`) — `retryPendingTranslations()` may be called multiple times per session; it is idempotent because it only fetches `.pending` entries.

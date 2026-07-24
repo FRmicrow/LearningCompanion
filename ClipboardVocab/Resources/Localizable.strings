@@ -1,0 +1,31 @@
+/* Empty state */
+"empty_state_message" = "Copiez un mot anglais pour commencer.";
+
+/* Translation status */
+"translation_pending_label" = "Traduction en attente";
+"retry_label" = "Réessayer";
+
+/* Group-level retry */
+"retry_group_label" = "Réessayer la traduction";
+/* %@ = date label, e.g. "22 juillet 2025" */
+"retry_group_accessibility_label" = "Réessayer la traduction pour %@";
+"retry_no_translations_error" = "Aucune traduction obtenue.";
+"retry_service_error" = "Service indisponible. Réessayez plus tard.";
+
+/* Retained checkbox */
+/* %@ = English word */
+"retained_toggle_accessibility_label" = "Marquer « %@ » comme retenu";
+
+/* Old unretained section */
+"old_unretained_section_header" = "Mots non retenus (>1 semaine)";
+"old_unretained_section_accessibility_label" = "Mots anciens non retenus, plus d'une semaine";
+
+/* Seen count */
+"seen_count_format" = "Vu %d fois";
+
+/* Pause/Resume */
+"pause_capture_label" = "Pause de la capture";
+"resume_capture_label" = "Reprendre la capture";
+
+/* Quit */
+"quit_label" = "Quitter ClipboardVocab";

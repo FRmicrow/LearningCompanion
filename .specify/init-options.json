@@ -1,0 +1,8 @@
+{
+  "ai": "bob",
+  "feature_numbering": "sequential",
+  "here": false,
+  "integration": "bob",
+  "script": "sh",
+  "speckit_version": "0.12.9.dev0"
+}

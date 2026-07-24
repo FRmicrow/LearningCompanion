@@ -1,0 +1,46 @@
+# Spec Kit extensions configuration
+# Defines lifecycle hooks that run before/after core speckit commands.
+#
+# Hook fields:
+#   extension   - display name shown in the agent's output
+#   command     - the Bob command to invoke (without leading slash)
+#   description - short human-readable description
+#   prompt      - the prompt forwarded to the command when invoked
+#   optional    - true: agent surfaces the hook but does not auto-run it
+#                 false: agent auto-runs the hook and waits for the result
+#   enabled     - set to false to disable without deleting the entry
+#   condition   - (reserved) expression evaluated by HookExecutor; leave
+#                 empty to run unconditionally
+
+hooks:
+  # ── before_specify ────────────────────────────────────────────────────────
+  # Hooks executed before /speckit.specify creates the spec directory.
+  before_specify: []
+
+  # ── after_specify ─────────────────────────────────────────────────────────
+  # Hooks executed after /speckit.specify writes and validates spec.md.
+  after_specify: []
+
+  # ── before_plan ───────────────────────────────────────────────────────────
+  # Hooks executed before /speckit.plan generates plan.md.
+  before_plan: []
+
+  # ── after_plan ────────────────────────────────────────────────────────────
+  # Hooks executed after /speckit.plan writes plan.md.
+  after_plan: []
+
+  # ── before_tasks ──────────────────────────────────────────────────────────
+  # Hooks executed before /speckit.tasks generates tasks.md.
+  before_tasks: []
+
+  # ── after_tasks ───────────────────────────────────────────────────────────
+  # Hooks executed after /speckit.tasks writes tasks.md.
+  after_tasks: []
+
+  # ── before_implement ──────────────────────────────────────────────────────
+  # Hooks executed before /speckit.implement starts the implementation phase.
+  before_implement: []
+
+  # ── after_implement ───────────────────────────────────────────────────────
+  # Hooks executed after /speckit.implement completes.
+  after_implement: []
