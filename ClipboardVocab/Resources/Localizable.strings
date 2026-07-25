@@ -44,3 +44,15 @@
 "learn_placeholder_label" = "Apprendre — bientôt disponible";
 "review_placeholder_label" = "Réviser — bientôt disponible";
 "stats_placeholder_label" = "Statistiques — bientôt disponible";
+/* SRS rating buttons (Epic 4 — Review/Learn views) */
+"srs_rating_again" = "À revoir";
+"srs_rating_hard"  = "Difficile";
+"srs_rating_good"  = "Bien";
+"srs_rating_easy"  = "Facile";
+
+/* SRS state labels */
+"srs_state_new"      = "Nouveau";
+"srs_state_learning" = "En apprentissage";
+"srs_state_known"    = "Connu";
+"srs_state_mastered" = "Maîtrisé";
+
