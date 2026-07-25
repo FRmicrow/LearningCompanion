@@ -14,6 +14,7 @@ struct VocabularyPanelTests {
             englishText: text,
             frenchTranslation: nil,
             translationStatus: .pending,
+            triageStatus: .unreviewed,
             seenCount: 1,
             firstCapturedAt: date,
             lastSeenAt: date,
