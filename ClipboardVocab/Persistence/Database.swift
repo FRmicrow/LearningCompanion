@@ -88,6 +88,36 @@ final class Database {
             }
         }
 
+        // Version 3: add triageStatus column for Inbox capture/triage (Epic 2)
+        migrator.registerMigration("v3") { db in
+            try db.alter(table: "vocabulary_entries") { t in
+                t.add(column: "triageStatus", .text).notNull().defaults(to: "unreviewed")
+            }
+            try db.create(
+                index: "idx_vocabulary_triage_status",
+                on: "vocabulary_entries",
+                columns: ["triageStatus"]
+            )
+        }
+
+        // Version 4: add five SRS columns for spaced-repetition engine (Epic 3)
+        migrator.registerMigration("v4") { db in
+            // SQLite ALTER TABLE only accepts constant defaults — expression defaults
+            // (e.g. date('now')) are rejected at runtime even though they work in
+            // CREATE TABLE. Each statement is executed separately; dueDate defaults
+            // to NULL (all five fields are optional — markSaved sets real values).
+            try db.execute(sql: "ALTER TABLE vocabulary_entries ADD COLUMN srsState    TEXT    DEFAULT 'new'")
+            try db.execute(sql: "ALTER TABLE vocabulary_entries ADD COLUMN dueDate     TEXT")
+            try db.execute(sql: "ALTER TABLE vocabulary_entries ADD COLUMN interval    REAL    DEFAULT 1.0")
+            try db.execute(sql: "ALTER TABLE vocabulary_entries ADD COLUMN easeFactor  REAL    DEFAULT 2.5")
+            try db.execute(sql: "ALTER TABLE vocabulary_entries ADD COLUMN ratingCount INTEGER DEFAULT 0")
+            try db.create(
+                index: "idx_vocabulary_due_date",
+                on: "vocabulary_entries",
+                columns: ["dueDate"]
+            )
+        }
+
         try migrator.migrate(dbQueue)
     }
 }
