@@ -41,6 +41,7 @@ final class VocabularyEntryRepository {
                     englishText: englishText,
                     frenchTranslation: nil,
                     translationStatus: .pending,
+                    triageStatus: .unreviewed,
                     seenCount: 1,
                     firstCapturedAt: now,
                     lastSeenAt: now,
@@ -117,5 +118,222 @@ final class VocabularyEntryRepository {
                 .order(Column("firstCapturedAt").desc)
                 .fetchAll(db)
         }
+    }
+
+    // MARK: - Inbox triage (Epic 2)
+
+    /// All entries with `triageStatus == 'unreviewed'`, ordered most-recently-captured first.
+    func fetchInbox() throws -> [VocabularyEntry] {
+        try dbQueue.read { db in
+            try VocabularyEntry
+                .filter(Column("triageStatus") == VocabularyEntry.TriageStatus.unreviewed.rawValue)
+                .order(Column("firstCapturedAt").desc)
+                .fetchAll(db)
+        }
+    }
+
+    /// Count of entries with `triageStatus == 'unreviewed'`. Used for Inbox badge.
+    func fetchInboxCount() throws -> Int {
+        try dbQueue.read { db in
+            try VocabularyEntry
+                .filter(Column("triageStatus") == VocabularyEntry.TriageStatus.unreviewed.rawValue)
+                .fetchCount(db)
+        }
+    }
+
+    /// Mark an entry as saved, atomically seeding SRS defaults (C-38, C-39).
+    ///
+    /// Sets `triageStatus = 'saved'`, `srsState = 'new'`, `dueDate = today`,
+    /// `interval = 1.0`, `easeFactor = 2.5`, `ratingCount = 0` in a single UPDATE.
+    func markSaved(id: Int64) throws {
+        let today = todayString()
+        try dbQueue.write { db in
+            try db.execute(
+                sql: """
+                    UPDATE vocabulary_entries
+                    SET triageStatus = 'saved',
+                        srsState     = 'new',
+                        dueDate      = ?,
+                        interval     = 1.0,
+                        easeFactor   = 2.5,
+                        ratingCount  = 0
+                    WHERE id = ?
+                    """,
+                arguments: [today, id]
+            )
+        }
+        AppLogger.persistence.info("markSaved id=\(id), dueDate=\(today)")
+    }
+
+    /// Mark an entry as ignored (removed from Inbox, not in learning pipeline).
+    func markIgnored(id: Int64) throws {
+        try dbQueue.write { db in
+            try db.execute(
+                sql: "UPDATE vocabulary_entries SET triageStatus = 'ignored' WHERE id = ?",
+                arguments: [id]
+            )
+        }
+        AppLogger.persistence.info("markIgnored id=\(id)")
+    }
+
+    /// Mark an entry as known (saved with "already known" marker).
+    func markKnown(id: Int64) throws {
+        try dbQueue.write { db in
+            try db.execute(
+                sql: "UPDATE vocabulary_entries SET triageStatus = 'known' WHERE id = ?",
+                arguments: [id]
+            )
+        }
+        AppLogger.persistence.info("markKnown id=\(id)")
+    }
+
+    // MARK: - SRS queue (Epic 3)
+
+    /// All entries with `triageStatus == 'saved'` and `dueDate ≤ today`,
+    /// ordered by `dueDate` ascending (oldest/most-overdue first).
+    ///
+    /// `todayString` is computed at call time — never cached across midnight.
+    func fetchDueEntries() throws -> [VocabularyEntry] {
+        let today = todayString()
+        return try dbQueue.read { db in
+            try VocabularyEntry
+                .filter(Column("triageStatus") == VocabularyEntry.TriageStatus.saved.rawValue)
+                .filter(Column("dueDate") <= today)
+                .filter(Column("isMastered") == false)
+                .order(Column("dueDate").asc)
+                .fetchAll(db)
+        }
+    }
+
+    /// Count of entries in the daily review queue.
+    ///
+    /// **ValueObservation pattern** (T022) — for `DailyProgressBar` (Epic 1) and session header (Epic 4):
+    ///
+    /// ```swift
+    /// let obs = ValueObservation.tracking { db in
+    ///     let today = todayString() // computed inside closure at observation time
+    ///     return try VocabularyEntry
+    ///         .filter(Column("triageStatus") == "saved")
+    ///         .filter(Column("dueDate") <= today)
+    ///         .fetchCount(db)
+    /// }
+    /// countTask = Task { @MainActor in
+    ///     for try await count in obs.values(in: repository.dbQueue) {
+    ///         self.dueCount = count
+    ///     }
+    /// }
+    /// ```
+    ///
+    /// The observation fires automatically after every `applyRating` write (C-37).
+    /// No `NotificationCenter` or manual refresh needed.
+    func fetchDueCount() throws -> Int {
+        let today = todayString()
+        return try dbQueue.read { db in
+            try VocabularyEntry
+                .filter(Column("triageStatus") == VocabularyEntry.TriageStatus.saved.rawValue)
+                .filter(Column("dueDate") <= today)
+                .filter(Column("isMastered") == false)
+                .fetchCount(db)
+        }
+    }
+
+    /// Writes all six SRS fields (including `lastReviewedDate`) in a single atomic transaction.
+    ///
+    /// - Throws on DB error. Callers must catch and apply re-queue behaviour.
+    ///   Do NOT call with `try?` — silent failure breaks the SRS pipeline.
+    /// - Does NOT touch `triageStatus`, `englishText`, `frenchTranslation`, or any other column.
+    func applyRating(id: Int64, update: SRSUpdate) throws {
+        try dbQueue.write { db in
+            try db.execute(
+                sql: """
+                    UPDATE vocabulary_entries
+                    SET srsState         = ?,
+                        dueDate          = ?,
+                        interval         = ?,
+                        easeFactor       = ?,
+                        ratingCount      = ?,
+                        lastReviewedDate = ?
+                    WHERE id = ?
+                    """,
+                arguments: [
+                    update.srsState.rawValue,
+                    update.dueDate,
+                    update.interval,
+                    update.easeFactor,
+                    update.ratingCount,
+                    update.lastReviewedDate,
+                    id
+                ]
+            )
+        }
+    }
+
+    // MARK: - Epic 5 (Inbox Word Management)
+
+    /// All saved, non-mastered entries eligible for a Learn session.
+    /// Ordered by dueDate ascending (overdue-first). Broader than `fetchDueEntries`:
+    /// does not apply a `dueDate ≤ today` filter.
+    func fetchLearnPool() throws -> [VocabularyEntry] {
+        try dbQueue.read { db in
+            try VocabularyEntry
+                .filter(Column("triageStatus") == VocabularyEntry.TriageStatus.saved.rawValue)
+                .filter(Column("isMastered") == false)
+                .order(Column("dueDate").asc)
+                .fetchAll(db)
+        }
+    }
+
+    /// Sets `isMastered = true` for the entry with the given id.
+    /// Issues a single UPDATE touching only the `isMastered` column.
+    func markMastered(id: Int64) throws {
+        try dbQueue.write { db in
+            try db.execute(
+                sql: "UPDATE vocabulary_entries SET isMastered = 1 WHERE id = ?",
+                arguments: [id]
+            )
+        }
+    }
+
+    /// Hard-deletes all entries whose id is in the provided array in a single write transaction.
+    /// No-op when `ids` is empty.
+    func deleteAll(ids: [Int64]) throws {
+        guard !ids.isEmpty else { return }
+        let placeholders = ids.map { _ in "?" }.joined(separator: ",")
+        let values = ids.map { DatabaseValue(value: $0) }
+        let args = StatementArguments(values)
+        try dbQueue.write { db in
+            try db.execute(
+                sql: "DELETE FROM vocabulary_entries WHERE id IN (\(placeholders))",
+                arguments: args
+            )
+        }
+    }
+
+    // MARK: - Epic 4 (Learn & Review)
+
+    /// Persists the user-selected difficulty label for the given entry.
+    ///
+    /// Issues a single UPDATE touching only the `difficultyLabel` column.
+    /// Does not touch any SRS column, `triageStatus`, or `lastReviewedDate`.
+    ///
+    /// - Throws on DB error. Callers use `Task { try? ... }` — silent failure is acceptable.
+    func setDifficultyLabel(id: Int64, label: DifficultyLabel) throws {
+        try dbQueue.write { db in
+            try db.execute(
+                sql: "UPDATE vocabulary_entries SET difficultyLabel = ? WHERE id = ?",
+                arguments: [label.rawValue, id]
+            )
+        }
+    }
+
+    // MARK: - Private helpers
+
+    /// Today's date as a `YYYY-MM-DD` string in the device's local calendar.
+    /// Computed at call time — never hardcoded or cached across midnight.
+    private func todayString() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.calendar   = Calendar.current
+        return formatter.string(from: Date())
     }
 }

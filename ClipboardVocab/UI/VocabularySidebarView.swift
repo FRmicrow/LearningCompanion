@@ -19,6 +19,7 @@ struct VocabularySidebarView: View {
     @State private var selectedTab: SidebarTab = .inbox
     @State private var dailyProgress: DailyProgress = DailyProgress(count: 0)
     @State private var progressTask: Task<Void, Never>?
+    @State private var focusSession: FocusSession?
 
     // MARK: - Body
 
@@ -46,16 +47,14 @@ struct VocabularySidebarView: View {
         case .inbox:
             VocabularyListView(
                 repository: repository,
-                translationService: translationService
+                translationService: translationService,
+                session: $focusSession,
+                onNavigateToLearn: { selectedTab = .learn }
             )
         case .learn:
-            Text(L10n.string("learn_placeholder_label"))
-                .foregroundColor(.secondary)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            LearnView(repository: repository, session: $focusSession)
         case .review:
-            Text(L10n.string("review_placeholder_label"))
-                .foregroundColor(.secondary)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            ReviewView(repository: repository, session: $focusSession)
         case .stats:
             Text(L10n.string("stats_placeholder_label"))
                 .foregroundColor(.secondary)
@@ -66,12 +65,15 @@ struct VocabularySidebarView: View {
     // MARK: - Daily progress observation
 
     private func startProgressObservation() {
-        let calendar = Calendar.current
-        let startOfDay = calendar.startOfDay(for: Date())
-
         let observation = ValueObservation.tracking { db in
-            try VocabularyEntry
-                .filter(Column("firstCapturedAt") >= startOfDay)
+            let fmt = DateFormatter()
+            fmt.dateFormat = "yyyy-MM-dd"
+            fmt.calendar   = Calendar.current
+            let todayString = fmt.string(from: Date())
+            return try VocabularyEntry
+                .filter(Column("triageStatus") == "saved")
+                .filter(Column("dueDate") <= todayString)
+                .filter(Column("isMastered") == false)
                 .fetchCount(db)
         }
 

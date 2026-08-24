@@ -12,6 +12,7 @@ struct VocabularyEntryRow: View {
 
     let entry: VocabularyEntry
     @Binding var isRetained: Bool
+    let onSave: ((VocabularyEntry) -> Void)?
     let onDelete: (VocabularyEntry) -> Void
 
     // MARK: - Body
@@ -55,9 +56,30 @@ struct VocabularyEntryRow: View {
                         .foregroundColor(.secondary)
                         .accessibilityLabel("Vu \(entry.seenCount) fois")
                 }
+
+                if entry.isMastered {
+                    Text(L10n.string("entry_mastered_label"))
+                        .font(.caption2)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.green.opacity(0.2))
+                        .foregroundColor(.green)
+                        .cornerRadius(4)
+                        .accessibilityLabel(L10n.string("entry_mastered_label"))
+                }
             }
 
             Spacer()
+
+            // MARK: Save button — only for unreviewed entries
+            if entry.triageStatus == .unreviewed, let onSave {
+                Button(L10n.string("save_button_label")) {
+                    onSave(entry)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                .accessibilityLabel(L10n.string("save_button_accessibility_label", entry.englishText))
+            }
 
             // MARK: Delete button
             Button {

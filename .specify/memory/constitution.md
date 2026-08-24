@@ -1,11 +1,13 @@
 <!-- SYNC IMPACT REPORT
-Version change: 1.0.0 → 1.0.1
-Modified principles: I. Local-First, Privacy-Safe — clarified that LibreTranslate runs in local Docker (port 5001), not on a public remote server
+Version change: 1.0.1 → 1.0.2
+Modified principles: none
 Added sections: none
 Removed sections: none
 Templates checked:
-  ✅ .specify/templates/plan-template.md — no change required
-  ✅ README.md — Translation note references libretranslate.com as a fallback; runtime URL is overridden to localhost:5001 in AppDelegate (consistent with this amendment)
+  ✅ .specify/templates/plan-template.md — no change required; Constitution Check gate text is generic
+  ✅ .specify/templates/spec-template.md — no change required
+  ✅ .specify/templates/tasks-template.md — no change required; Swift Testing not referenced (generic template)
+  ✅ README.md — consistent with constitution; libretranslate.com appears only as a hyperlink label, runtime URL is localhost:5001 in AppDelegate
 Follow-up TODOs: none
 -->
 
@@ -75,6 +77,7 @@ of method signatures, threading guarantees, and error contracts. Code MUST NOT d
 from a ratified contract without first amending the contract document.
 
 Key non-negotiable contracts currently in force:
+
 - `TranslationService.translate(entry:)` MUST be `async`, MUST NOT throw.
 - `TranslationService.retryGroup(entries:)` MUST throw only when `successCount == 0`.
 - `CaptureProcessorService` delegate callbacks MUST be dispatched to the main thread
@@ -150,4 +153,4 @@ principles above apply retroactively for any future amendments to those features
 current version of this document. Outdated gates MUST be updated before the feature
 moves to the implementation phase.
 
-**Version**: 1.0.1 | **Ratified**: 2025-07-18 | **Last Amended**: 2025-07-18
+**Version**: 1.0.2 | **Ratified**: 2025-07-18 | **Last Amended**: 2025-08-24
