@@ -27,6 +27,7 @@ struct OldUnretainedWordsSection: View {
                                 get: { entry.isRetained },
                                 set: { onRetainToggle(id, $0) }
                             ),
+                            onSave: nil,
                             onDelete: { _ in onDelete(entry) }
                         )
                     }

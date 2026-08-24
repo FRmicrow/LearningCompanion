@@ -35,11 +35,12 @@ enum SRSRating {
 /// Carries the output of `SRSEngine.rate(_:rating:)`.
 /// Applied to the DB entry via `VocabularyEntryRepository.applyRating(id:update:)`.
 struct SRSUpdate {
-    let srsState:    SRSState
-    let dueDate:     String   // "YYYY-MM-DD" in local calendar
-    let interval:    Double
-    let easeFactor:  Double
-    let ratingCount: Int
+    let srsState:         SRSState
+    let dueDate:          String   // "YYYY-MM-DD" in local calendar
+    let interval:         Double
+    let easeFactor:       Double
+    let ratingCount:      Int
+    let lastReviewedDate: String   // "YYYY-MM-DD" — date of this rating (Epic 4)
 }
 
 // MARK: - SRSEngine
@@ -111,17 +112,19 @@ struct SRSEngine {
             newEase     = priorEase
         }
 
-        let newRatingCount = priorCount + 1
+        let newRatingCount   = priorCount + 1
         // Derive state from *new* ratingCount and *new* interval (see derivation table above)
-        let newState       = deriveState(ratingCount: newRatingCount, interval: newInterval)
-        let newDueDate     = dueDateString(addingDays: Int(newInterval.rounded()))
+        let newState         = deriveState(ratingCount: newRatingCount, interval: newInterval)
+        let newDueDate       = dueDateString(addingDays: Int(newInterval.rounded()))
+        let todayStr         = todayString()
 
         return SRSUpdate(
-            srsState:    newState,
-            dueDate:     newDueDate,
-            interval:    newInterval,
-            easeFactor:  newEase,
-            ratingCount: newRatingCount
+            srsState:         newState,
+            dueDate:          newDueDate,
+            interval:         newInterval,
+            easeFactor:       newEase,
+            ratingCount:      newRatingCount,
+            lastReviewedDate: todayStr
         )
     }
 
@@ -139,6 +142,15 @@ struct SRSEngine {
         if interval    < 7.0  { return .learning }
         if interval    < 21.0 { return .known }
         return .mastered
+    }
+
+    /// Returns today formatted as `yyyy-MM-dd` in the device's local calendar.
+    private static func todayString() -> String {
+        let cal = Calendar.current
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.calendar   = cal
+        return formatter.string(from: cal.startOfDay(for: Date()))
     }
 
     /// Returns today + `days` formatted as `yyyy-MM-dd` in the device's local calendar.

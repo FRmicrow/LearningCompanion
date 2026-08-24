@@ -118,6 +118,17 @@ final class Database {
             )
         }
 
+        // Version 5: add user annotation columns for Epic 4 (Learn & Review sessions)
+        migrator.registerMigration("v5") { db in
+            try db.execute(sql: "ALTER TABLE vocabulary_entries ADD COLUMN difficultyLabel  TEXT DEFAULT NULL")
+            try db.execute(sql: "ALTER TABLE vocabulary_entries ADD COLUMN lastReviewedDate TEXT DEFAULT NULL")
+        }
+
+        // Version 6: add isMastered column for Epic 5 (Inbox Word Management)
+        migrator.registerMigration("v6") { db in
+            try db.execute(sql: "ALTER TABLE vocabulary_entries ADD COLUMN isMastered INTEGER NOT NULL DEFAULT 0")
+        }
+
         try migrator.migrate(dbQueue)
     }
 }

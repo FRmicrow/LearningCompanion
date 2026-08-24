@@ -199,6 +199,7 @@ final class VocabularyEntryRepository {
             try VocabularyEntry
                 .filter(Column("triageStatus") == VocabularyEntry.TriageStatus.saved.rawValue)
                 .filter(Column("dueDate") <= today)
+                .filter(Column("isMastered") == false)
                 .order(Column("dueDate").asc)
                 .fetchAll(db)
         }
@@ -231,11 +232,12 @@ final class VocabularyEntryRepository {
             try VocabularyEntry
                 .filter(Column("triageStatus") == VocabularyEntry.TriageStatus.saved.rawValue)
                 .filter(Column("dueDate") <= today)
+                .filter(Column("isMastered") == false)
                 .fetchCount(db)
         }
     }
 
-    /// Writes all five SRS fields in a single atomic transaction.
+    /// Writes all six SRS fields (including `lastReviewedDate`) in a single atomic transaction.
     ///
     /// - Throws on DB error. Callers must catch and apply re-queue behaviour.
     ///   Do NOT call with `try?` — silent failure breaks the SRS pipeline.
@@ -245,11 +247,12 @@ final class VocabularyEntryRepository {
             try db.execute(
                 sql: """
                     UPDATE vocabulary_entries
-                    SET srsState    = ?,
-                        dueDate     = ?,
-                        interval    = ?,
-                        easeFactor  = ?,
-                        ratingCount = ?
+                    SET srsState         = ?,
+                        dueDate          = ?,
+                        interval         = ?,
+                        easeFactor       = ?,
+                        ratingCount      = ?,
+                        lastReviewedDate = ?
                     WHERE id = ?
                     """,
                 arguments: [
@@ -258,8 +261,67 @@ final class VocabularyEntryRepository {
                     update.interval,
                     update.easeFactor,
                     update.ratingCount,
+                    update.lastReviewedDate,
                     id
                 ]
+            )
+        }
+    }
+
+    // MARK: - Epic 5 (Inbox Word Management)
+
+    /// All saved, non-mastered entries eligible for a Learn session.
+    /// Ordered by dueDate ascending (overdue-first). Broader than `fetchDueEntries`:
+    /// does not apply a `dueDate ≤ today` filter.
+    func fetchLearnPool() throws -> [VocabularyEntry] {
+        try dbQueue.read { db in
+            try VocabularyEntry
+                .filter(Column("triageStatus") == VocabularyEntry.TriageStatus.saved.rawValue)
+                .filter(Column("isMastered") == false)
+                .order(Column("dueDate").asc)
+                .fetchAll(db)
+        }
+    }
+
+    /// Sets `isMastered = true` for the entry with the given id.
+    /// Issues a single UPDATE touching only the `isMastered` column.
+    func markMastered(id: Int64) throws {
+        try dbQueue.write { db in
+            try db.execute(
+                sql: "UPDATE vocabulary_entries SET isMastered = 1 WHERE id = ?",
+                arguments: [id]
+            )
+        }
+    }
+
+    /// Hard-deletes all entries whose id is in the provided array in a single write transaction.
+    /// No-op when `ids` is empty.
+    func deleteAll(ids: [Int64]) throws {
+        guard !ids.isEmpty else { return }
+        let placeholders = ids.map { _ in "?" }.joined(separator: ",")
+        let values = ids.map { DatabaseValue(value: $0) }
+        let args = StatementArguments(values)
+        try dbQueue.write { db in
+            try db.execute(
+                sql: "DELETE FROM vocabulary_entries WHERE id IN (\(placeholders))",
+                arguments: args
+            )
+        }
+    }
+
+    // MARK: - Epic 4 (Learn & Review)
+
+    /// Persists the user-selected difficulty label for the given entry.
+    ///
+    /// Issues a single UPDATE touching only the `difficultyLabel` column.
+    /// Does not touch any SRS column, `triageStatus`, or `lastReviewedDate`.
+    ///
+    /// - Throws on DB error. Callers use `Task { try? ... }` — silent failure is acceptable.
+    func setDifficultyLabel(id: Int64, label: DifficultyLabel) throws {
+        try dbQueue.write { db in
+            try db.execute(
+                sql: "UPDATE vocabulary_entries SET difficultyLabel = ? WHERE id = ?",
+                arguments: [label.rawValue, id]
             )
         }
     }

@@ -19,6 +19,10 @@ let package = Package(
                 .product(name: "GRDB", package: "GRDB.swift")
             ],
             path: "ClipboardVocab",
+            exclude: [
+                "App/Info.plist",
+                "App/ClipboardVocab.entitlements"
+            ],
             resources: [
                 .process("Resources")
             ]

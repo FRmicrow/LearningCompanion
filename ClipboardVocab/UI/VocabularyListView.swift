@@ -1,12 +1,15 @@
 import SwiftUI
 import GRDB
 
-/// The main vocabulary panel hosted inside the `NSPopover`.
+/// The main vocabulary panel hosted inside the `VocabularySidebarView` content area.
 ///
 /// Displays vocabulary entries grouped by capture date (Zone 1),
 /// a separate "Old Unretained Words" section for entries older than 7 days (Zone 2),
 /// and an empty state placeholder when no entries exist (Zone 3).
 ///
+/// The `List` and empty-state view use `.frame(maxWidth: .infinity)` (no fixed width
+/// or height cap) so they fill whatever space `VocabularySidebarView` provides.
+/// Per contracts C-24, C-25, C-26 (`specs/011-inbox-layout-fix/contracts/vocabulary-list-layout.md`).
 /// Uses GRDB `ValueObservation` for reactive updates.
 /// Per `contracts/vocabulary-panel-ui.md`.
 struct VocabularyListView: View {
@@ -16,12 +19,27 @@ struct VocabularyListView: View {
     let repository: VocabularyEntryRepository
     let translationService: TranslationService
 
+    // MARK: - Bindings (Epic 5 — Add to Learn)
+
+    /// Binding to the active focus session owned by VocabularySidebarView.
+    /// When "Add to Learn" constructs a new session it writes here.
+    /// Silently overwrites any paused session (C-46).
+    @Binding var session: FocusSession?
+
+    /// Called by "Add to Learn" to navigate to the Learn tab.
+    var onNavigateToLearn: (() -> Void)?
+
     // MARK: - State
 
     @State private var entries: [VocabularyEntry] = []
     @State private var observationTask: Task<Void, Never>? = nil
     /// Controls whether the translation for the focused Inbox item is revealed.
     @State private var isTranslationVisible: Bool = false
+
+    // MARK: - Selection state (Epic 5)
+
+    @State private var isSelecting: Bool = false
+    @State private var selectedIDs: Set<Int64> = []
 
     // MARK: - Derived data
 
@@ -73,9 +91,52 @@ struct VocabularyListView: View {
     @ViewBuilder
     private var translationContent: some View {
         VStack(spacing: 0) {
+            // MARK: Selection toolbar
+            if isSelecting {
+                HStack(spacing: 8) {
+                    Button(L10n.string("inbox_cancel_button")) {
+                        cancelSelection()
+                    }
+                    .controlSize(.small)
+
+                    Spacer()
+
+                    Button(L10n.string("inbox_delete_selected_button")) {
+                        deleteSelected()
+                    }
+                    .controlSize(.small)
+                    .disabled(selectedIDs.isEmpty)
+
+                    Button(L10n.string("inbox_add_to_learn_button")) {
+                        addToLearn()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.small)
+                    .disabled(selectedIDs.isEmpty)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 6)
+                .background(Color(NSColor.controlBackgroundColor))
+
+                Divider()
+            } else {
+                HStack {
+                    Spacer()
+                    Button(L10n.string("inbox_select_button")) {
+                        isSelecting = true
+                    }
+                    .controlSize(.small)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                }
+                .background(Color(NSColor.controlBackgroundColor))
+
+                Divider()
+            }
+
             if entries.isEmpty {
                 EmptyStateView()
-                    .frame(width: 380, height: 200)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List {
                     ForEach(dateGroups, id: \.label) { group in
@@ -85,12 +146,17 @@ struct VocabularyListView: View {
                             onRetainToggle: { id, retained in
                                 toggleRetained(id: id, retained: retained)
                             },
+                            onSave: { entry in
+                                save(entry)
+                            },
                             onRetryGroup: {
                                 try await translationService.retryGroup(entries: group.entries)
                             },
                             onDelete: { entry in
                                 delete(entry)
-                            }
+                            },
+                            isSelecting: isSelecting,
+                            selectedIDs: $selectedIDs
                         )
                     }
 
@@ -104,14 +170,18 @@ struct VocabularyListView: View {
                         }
                     )
                 }
-                .frame(width: 380)
-                .frame(maxHeight: 500)
+                .frame(maxWidth: .infinity)
                 .listStyle(.plain)
             }
         }
     }
 
     // MARK: - Actions
+
+    private func save(_ entry: VocabularyEntry) {
+        guard let id = entry.id else { return }
+        Task { try? repository.markSaved(id: id) }
+    }
 
     private func toggleRetained(id: Int64, retained: Bool) {
         Task {
@@ -133,6 +203,39 @@ struct VocabularyListView: View {
         try? repository.delete(id: id)
     }
 
+    // MARK: - Selection actions (Epic 5)
+
+    private func cancelSelection() {
+        isSelecting = false
+        selectedIDs = []
+    }
+
+    private func deleteSelected() {
+        let ids = Array(selectedIDs)
+        isSelecting = false
+        selectedIDs = []
+        Task { try? repository.deleteAll(ids: ids) }
+    }
+
+    private func addToLearn() {
+        let selected = entries.filter { entry in
+            guard let id = entry.id else { return false }
+            return selectedIDs.contains(id)
+        }
+        guard !selected.isEmpty else { return }
+        session = FocusSession(
+            totalCards: selected.count,
+            isOnDemand: true,
+            cards: selected,
+            ratedCount: 0,
+            tally: .init(),
+            failedCardIDs: []
+        )
+        isSelecting = false
+        selectedIDs = []
+        onNavigateToLearn?()
+    }
+
     // MARK: - Live data via GRDB ValueObservation
 
     private func startObservation() {
@@ -144,6 +247,7 @@ struct VocabularyListView: View {
 
         observationTask = Task { @MainActor in
             do {
+                // New entries arriving via observation do NOT receive a pre-selected checkbox (C-42).
                 for try await freshEntries in observation.values(in: repository.dbQueue) {
                     entries = freshEntries
                 }

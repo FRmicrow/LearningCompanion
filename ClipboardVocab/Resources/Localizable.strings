@@ -12,6 +12,11 @@
 "retry_no_translations_error" = "Aucune traduction obtenue.";
 "retry_service_error" = "Service indisponible. Réessayez plus tard.";
 
+/* Inbox triage */
+"save_button_label" = "Sauvegarder";
+/* %@ = English word */
+"save_button_accessibility_label" = "Sauvegarder « %@ » pour apprentissage";
+
 /* Retained checkbox */
 /* %@ = English word */
 "retained_toggle_accessibility_label" = "Marquer « %@ » comme retenu";
@@ -44,11 +49,48 @@
 "learn_placeholder_label" = "Apprendre — bientôt disponible";
 "review_placeholder_label" = "Réviser — bientôt disponible";
 "stats_placeholder_label" = "Statistiques — bientôt disponible";
+
 /* SRS rating buttons (Epic 4 — Review/Learn views) */
 "srs_rating_again" = "À revoir";
 "srs_rating_hard"  = "Difficile";
 "srs_rating_good"  = "Bien";
 "srs_rating_easy"  = "Facile";
+
+/* Learn session — reveal / rating buttons (Epic 4) */
+"learn_reveal_button" = "Reveal";
+"learn_rating_again"  = "Again";
+"learn_rating_hard"   = "Hard";
+"learn_rating_good"   = "Good";
+"learn_rating_easy"   = "Easy";
+
+/* Review session — rating buttons (Epic 4) */
+"review_rating_easy"   = "Easy";
+"review_rating_medium" = "Medium";
+"review_rating_hard"   = "Hard";
+
+/* Session header / progress / empty state (Epic 4) */
+"session_header"           = "Today's Review — %d cards";
+"session_progress"         = "%d / %d";
+"session_empty_state"      = "Nothing to review today — come back tomorrow";
+"session_completion_total" = "You reviewed %d words";
+"session_write_error"      = "Couldn't save — will retry";
+
+/* Inbox selection mode (Epic 5) */
+"inbox_select_button"          = "Select";
+"inbox_cancel_button"          = "Cancel";
+"inbox_delete_selected_button" = "Delete Selected";
+"inbox_add_to_learn_button"    = "Add to Learn";
+"session_restart_button"       = "Restart Session";
+"entry_mastered_label"         = "Mastered";
+
+/* Card metadata footer (Epic 4) */
+"card_last_review" = "Last review";
+"card_next_review" = "Next review";
+
+/* Difficulty selector (Epic 4) */
+"difficulty_easy"   = "Easy";
+"difficulty_medium" = "Medium";
+"difficulty_hard"   = "Hard";
 
 /* SRS state labels */
 "srs_state_new"      = "Nouveau";

@@ -29,6 +29,15 @@ struct VocabularyEntry: Codable, FetchableRecord, MutablePersistableRecord {
     var easeFactor: Double?
     var ratingCount: Int?
 
+    // MARK: - User annotation fields (migration v5)
+
+    var difficultyLabel: DifficultyLabel?
+    var lastReviewedDate: String?
+
+    // MARK: - Mastery flag (migration v6)
+
+    var isMastered: Bool = false
+
     // MARK: - GRDB auto-increment support
 
     mutating func didInsert(_ inserted: InsertionSuccess) {
@@ -52,6 +61,9 @@ struct VocabularyEntry: Codable, FetchableRecord, MutablePersistableRecord {
         case interval           = "interval"
         case easeFactor         = "easeFactor"
         case ratingCount        = "ratingCount"
+        case difficultyLabel    = "difficultyLabel"
+        case lastReviewedDate   = "lastReviewedDate"
+        case isMastered         = "isMastered"
     }
 }
 
